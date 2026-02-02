@@ -46,11 +46,11 @@ subject to {
 
   // Chaque vehicule part du depot au plus une fois
   forall(k in 1..nbvehicules)
-    sum(j in clients) x[depot][j][k] <= 1;
+    sum(j in clients) x[depot][j][k] == 1;
 
   // Chaque vehicule revient au depot au plus une fois
   forall(k in 1..nbvehicules)
-    sum(i in clients) x[i][depot][k] <= 1;
+    sum(i in clients) x[i][depot][k] == 1;
 
   // Conservation de flux
   forall(k in 1..nbvehicules, i in clients)
@@ -111,7 +111,7 @@ execute DISPLAY {
           }
         }
         visited++;
-        if (found == 0) break;
+        if (found == 0 || current == depot) break;
       }
       writeln("");
       writeln("  Charge : " + load + " / " + Qmax);
