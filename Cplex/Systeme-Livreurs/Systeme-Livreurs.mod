@@ -58,7 +58,7 @@ subject to {
 
   // Capacite par vehicule
   forall(k in 1..nbvehicules)
-    sum(i in clients) demande[i] * sum(j in noeuds: j != i) x[i][j][k] <= Qmax;
+    sum(i in clients, j in noeuds: j != i) demande[i] * x[i][j][k] <= Qmax;
 
   // MTZ (elimination des sous-tours)
   forall(i in clients, j in clients: i != j)
