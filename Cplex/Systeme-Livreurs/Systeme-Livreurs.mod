@@ -31,102 +31,102 @@ minimize
 
 subject to {
   // Interdire les boucles (un noeud ne peut pas aller vers lui-même)
-  forall(i in noeuds, k in 1..nbvéhicules)
-    x[i][i][k] == 0;
+forall(i in noeuds, k in 1..nbvéhicules)
+	x[i][i][k] == 0;
 
   // Chaque client est visité exactement une fois (entrée et sortie)
-  forall(i in clients)
-    sum(k in 1..nbvéhicules, j in noeuds: j != i) x[i][j][k] == 1;
+forall(i in clients)
+	sum(k in 1..nbvéhicules, j in noeuds: j != i) x[i][j][k] == 1;
 
-  forall(j in clients)
-    sum(k in 1..nbvéhicules, i in noeuds: i != j) x[i][j][k] == 1;
+forall(j in clients)
+	sum(k in 1..nbvéhicules, i in noeuds: i != j) x[i][j][k] == 1;
 
   // Chaque véhicule part une fois du dépôt et y revient
-  forall(k in 1..nbvéhicules)
-    sum(j in clients) x[depot][j][k] == 1;
+forall(k in 1..nbvéhicules)
+	sum(j in clients) x[depot][j][k] == 1;
 
-  forall(k in 1..nbvéhicules)
-    sum(i in clients) x[i][depot][k] == 1;
+forall(k in 1..nbvéhicules)
+	sum(i in clients) x[i][depot][k] == 1;
 
   // Conservation de flux pour chaque client et chaque véhicule
-  forall(k in 1..nbvéhicules, i in clients)
-    sum(j in noeuds: j != i) x[i][j][k] == sum(j in noeuds: j != i) x[j][i][k];
+forall(k in 1..nbvéhicules, i in clients)
+	sum(j in noeuds: j != i) x[i][j][k] == sum(j in noeuds: j != i) x[j][i][k];
 
   // Capacité par véhicule
-  forall(k in 1..nbvéhicules)
-    sum(i in clients) demande[i] * sum(j in noeuds: j != i) x[i][j][k] <= Qmax;
+forall(k in 1..nbvéhicules)
+	sum(i in clients) demande[i] * sum(j in noeuds: j != i) x[i][j][k] <= Qmax;
 
   // MTZ capacitaire (élimination des sous-tours)
-  forall(i in clients)
-    u[i] >= demande[i];
+forall(i in clients)
+	u[i] >= demande[i];
 
-  forall(i in clients)
-    u[i] <= Qmax;
+forall(i in clients)
+	u[i] <= Qmax;
 
-  forall(i in clients, j in clients: i != j)
-    u[i] - u[j] + Qmax * sum(k in 1..nbvéhicules) x[i][j][k] <= Qmax - demande[j];
+forall(i in clients, j in clients: i != j)
+	u[i] - u[j] + Qmax * sum(k in 1..nbvéhicules) x[i][j][k] <= Qmax - demande[j];
 }
 
 execute {
-  writeln("===== Solution VRP capacitaire =====");
-  writeln("Distance totale minimale : ", cplex.getObjValue());
-  writeln("");
+writeln("===== Solution VRP capacitaire =====");
+writeln("Distance totale minimale : ", cplex.getObjValue());
+writeln("");
 
-  if (NbClients != card(clients)) {
-    writeln("ATTENTION: NbClients (", NbClients, ") != nombre de clients (", card(clients), ")");
-  }
+if (NbClients != card(clients)) {
+	writeln("ATTENTION: NbClients (", NbClients, ") != nombre de clients (", card(clients), ")");
+}
 
-  for (var k in 1..nbvéhicules) {
-    writeln("Véhicule ", k, " :");
-    var current = depot;
-    var routeLoad = 0;
-    write(current);
+for (var k in 1..nbvéhicules) {
+	writeln("Véhicule ", k, " :");
+	var current = depot;
+	var routeLoad = 0;
+	write(current);
 
-    var safety = 0;
-    while (safety < N) {
-      var found = 0;
-      for (var next in noeuds) {
-        if (x[current][next][k] == 1) {
-          if (next != depot) {
-            routeLoad += demande[next];
-          }
-          write(" -> " + next);
-          current = next;
-          found = 1;
-          break;
-        }
-      }
-      safety++;
-      if (found == 0 || current == depot) {
-        break;
-      }
-    }
-    writeln("");
-    writeln("  Charge totale : ", routeLoad, " / ", Qmax);
-    writeln("");
-  }
+	var safety = 0;
+	while (safety < N) {
+	var found = 0;
+	for (var next in noeuds) {
+		if (x[current][next][k] == 1) {
+		if (next != depot) {
+			routeLoad += demande[next];
+		}
+		write(" -> " + next);
+		current = next;
+		found = 1;
+		break;
+		}
+	}
+	safety++;
+	if (found == 0 || current == depot) {
+		break;
+	}
+	}
+	writeln("");
+	writeln("  Charge totale : ", routeLoad, " / ", Qmax);
+	writeln("");
+}
 
-  // Affichage détaillé des arcs utilisés
-  writeln("=== Arcs utilisés ===");
-  var distanceTotale = 0;
-  for (var i in noeuds) {
-    for (var j in noeuds) {
-      for (var k in 1..nbvéhicules) {
-        if (x[i][j][k] == 1) {
-          writeln("  V", k, ": ", i, " -> ", j, " : distance = ", distances[i][j]);
-          distanceTotale += distances[i][j];
-        }
-      }
-    }
-  }
-  writeln("Distance totale (vérification) : ", distanceTotale);
-  writeln("");
+// Affichage détaillé des arcs utilisés
+writeln("=== Arcs utilisés ===");
+var distanceTotale = 0;
+for (var i in noeuds) {
+	for (var j in noeuds) {
+	for (var k in 1..nbvéhicules) {
+		if (x[i][j][k] == 1) {
+		writeln("  V", k, ": ", i, " -> ", j, " : distance = ", distances[i][j]);
+		distanceTotale += distances[i][j];
+		}
+	}
+	}
+}
+writeln("Distance totale (vérification) : ", distanceTotale);
+writeln("");
 
-  // Affichage des valeurs MTZ (charges)
-  writeln("=== Charges cumulées (variables MTZ u) ===");
-  for (var node in clients) {
-    writeln("  u[" + node + "] = " + u[node]);
-  }
-  writeln("");
-  writeln("===== Fin de la solution =====");
+// Affichage des valeurs MTZ (charges)
+writeln("=== Charges cumulées (variables MTZ u) ===");
+for (var node in clients) {
+	writeln("  u[" + node + "] = " + u[node]);
+}
+writeln("");
+writeln("===== Fin de la solution =====");
 }
