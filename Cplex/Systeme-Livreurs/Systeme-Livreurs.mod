@@ -7,7 +7,7 @@
 string depot = ...; // un élément de "noeuds" servant de départ/arrivée
 {string} clients = noeuds diff {depot};
 
-int nbvéhicules = ...;
+int nbvehicules = ...;
 int Qmax = ...;
 int NbClients = ...;
 int demande[clients] = ...;
@@ -16,7 +16,7 @@ float distances[noeuds][noeuds] = ...;
 
 int N = card(noeuds);
 
-dvar boolean x[noeuds][noeuds][1..nbvéhicules];
+dvar boolean x[noeuds][noeuds][1..nbvehicules];
 dvar int u[clients] in 0..Qmax; // charge cumulée (MTZ) pour éliminer les sous-tours
 
 // Configuration CPLEX pour améliorer les performances
@@ -27,33 +27,33 @@ execute PARAMS {
 }
 
 minimize
-  sum(i in noeuds, j in noeuds, k in 1..nbvéhicules) x[i][j][k] * distances[i][j];
+  sum(i in noeuds, j in noeuds, k in 1..nbvehicules) x[i][j][k] * distances[i][j];
 
 subject to {
   // Interdire les boucles (un noeud ne peut pas aller vers lui-même)
-forall(i in noeuds, k in 1..nbvéhicules)
+forall(i in noeuds, k in 1..nbvehicules)
 	x[i][i][k] == 0;
 
   // Chaque client est visité exactement une fois (entrée et sortie)
 forall(i in clients)
-	sum(k in 1..nbvéhicules, j in noeuds: j != i) x[i][j][k] == 1;
+	sum(k in 1..nbvehicules, j in noeuds: j != i) x[i][j][k] == 1;
 
 forall(j in clients)
-	sum(k in 1..nbvéhicules, i in noeuds: i != j) x[i][j][k] == 1;
+	sum(k in 1..nbvehicules, i in noeuds: i != j) x[i][j][k] == 1;
 
   // Chaque véhicule part une fois du dépôt et y revient
-forall(k in 1..nbvéhicules)
+forall(k in 1..nbvehicules)
 	sum(j in clients) x[depot][j][k] == 1;
 
-forall(k in 1..nbvéhicules)
+forall(k in 1..nbvehicules)
 	sum(i in clients) x[i][depot][k] == 1;
 
   // Conservation de flux pour chaque client et chaque véhicule
-forall(k in 1..nbvéhicules, i in clients)
+forall(k in 1..nbvehicules, i in clients)
 	sum(j in noeuds: j != i) x[i][j][k] == sum(j in noeuds: j != i) x[j][i][k];
 
   // Capacité par véhicule
-forall(k in 1..nbvéhicules)
+forall(k in 1..nbvehicules)
 	sum(i in clients) demande[i] * sum(j in noeuds: j != i) x[i][j][k] <= Qmax;
 
   // MTZ capacitaire (élimination des sous-tours)
@@ -64,7 +64,7 @@ forall(i in clients)
 	u[i] <= Qmax;
 
 forall(i in clients, j in clients: i != j)
-	u[i] - u[j] + Qmax * sum(k in 1..nbvéhicules) x[i][j][k] <= Qmax - demande[j];
+	u[i] - u[j] + Qmax * sum(k in 1..nbvehicules) x[i][j][k] <= Qmax - demande[j];
 }
 
 execute {
@@ -76,7 +76,7 @@ if (NbClients != card(clients)) {
 	writeln("ATTENTION: NbClients (", NbClients, ") != nombre de clients (", card(clients), ")");
 }
 
-for (var k in 1..nbvéhicules) {
+for (var k in 1..nbvehicules) {
 	writeln("Véhicule ", k, " :");
 	var current = depot;
 	var routeLoad = 0;
@@ -111,12 +111,12 @@ writeln("=== Arcs utilisés ===");
 var distanceTotale = 0;
 for (var i in noeuds) {
 	for (var j in noeuds) {
-	for (var k in 1..nbvéhicules) {
-		if (x[i][j][k] == 1) {
-		writeln("  V", k, ": ", i, " -> ", j, " : distance = ", distances[i][j]);
-		distanceTotale += distances[i][j];
+		for (var k in 1..nbvehicules) {
+			if (x[i][j][k] == 1) {
+			writeln("  V", k, ": ", i, " -> ", j, " : distance = ", distances[i][j]);
+			distanceTotale += distances[i][j];
+			}
 		}
-	}
 	}
 }
 writeln("Distance totale (vérification) : ", distanceTotale);

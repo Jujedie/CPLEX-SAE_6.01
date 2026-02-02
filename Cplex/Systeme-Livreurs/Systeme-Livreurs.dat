@@ -3,7 +3,7 @@
  * Author: oj230564
  * Creation Date: 2 févr. 2026 at 09:33:55
  *********************************************/
-nbvéhicules=4;
+nbvehicules=4;
 Qmax = 100;
 NbClients = 4;
 demande = [
