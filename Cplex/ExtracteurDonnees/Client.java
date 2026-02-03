@@ -1,1 +1,1 @@
-public record Client(int number, int demand) {}
+public record Client(int number, int demand, int x, int y) {}
