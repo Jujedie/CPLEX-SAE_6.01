@@ -1,0 +1,1 @@
+public record Client(int number, int demand) {}

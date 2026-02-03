@@ -6,7 +6,7 @@
 noeuds={"S","A","B","C","D","E","F","G","H","I","J"};
 depot="S";
 
-nbvehicules=4;
+nbvehicules=3;
 Qmax = 100;
 NbClients = 10;
 
