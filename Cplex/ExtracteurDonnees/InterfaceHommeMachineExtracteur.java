@@ -161,7 +161,7 @@ public class InterfaceHommeMachineExtracteur extends JFrame {
 		inputNomFichier.setFont(new Font("Arial", Font.PLAIN, 13));
 		
 		// Labels de status
-		lblFichierSelectionne = new JLabel("Aucun fichier sélectionné");
+		lblFichierSelectionne = new JLabel("Aucun fichier au format taillard sélectionné");
 		lblFichierSelectionne.setFont(new Font("Arial", Font.ITALIC, 11));
 		lblFichierSelectionne.setForeground(Color.GRAY);
 		
