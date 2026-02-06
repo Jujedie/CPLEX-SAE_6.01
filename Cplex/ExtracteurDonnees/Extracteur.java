@@ -94,8 +94,8 @@ public class Extracteur {
 
 			writer.write("/*********************************************\n" + //
 						 " * OPL 22.1.1.0 Data\n" + //
-						 " * Author: oj230564\n" + //
-						 " * Creation Date: 2 fevr. 2026 at 09:33:55\n" + //
+						 " * Author: Extracteur.java\n" + //
+						 " * Creation Date: " + java.time.LocalDate.now() + "\n" + //
 						 " *********************************************/\n\n");
 			
 			String noeuds = "noeuds={";
