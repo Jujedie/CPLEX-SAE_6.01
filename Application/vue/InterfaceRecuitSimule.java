@@ -29,7 +29,6 @@ public class InterfaceRecuitSimule extends JFrame
 	// Contrôles
 	private JButton btnDemarrer;
 	private JButton btnArreter;
-	private JProgressBar progressBar;
 	
 	// Affichage des résultats
 	private JTextArea txtLog;
@@ -72,9 +71,14 @@ public class InterfaceRecuitSimule extends JFrame
 		
 		// Panel central avec paramètres et contrôles
 		JPanel centerLeft = new JPanel(new BorderLayout(5, 5));
-		centerLeft.add(creerPanelParametres(), BorderLayout.NORTH);
-		centerLeft.add(creerPanelControles(), BorderLayout.CENTER);
-		centerLeft.add(creerPanelLog(), BorderLayout.SOUTH);
+		
+		// Panel du haut (paramètres + contrôles)
+		JPanel topControls = new JPanel(new BorderLayout(5, 5));
+		topControls.add(creerPanelParametres(), BorderLayout.NORTH);
+		topControls.add(creerPanelControles(), BorderLayout.SOUTH);
+		
+		centerLeft.add(topControls, BorderLayout.NORTH);
+		centerLeft.add(creerPanelLog(), BorderLayout.CENTER);
 		
 		leftPanel.add(centerLeft, BorderLayout.CENTER);
 		
@@ -173,18 +177,17 @@ public class InterfaceRecuitSimule extends JFrame
 	
 	private JPanel creerPanelControles()
 	{
-		JPanel panel = new JPanel(new BorderLayout(5, 5));
-		panel.setBorder(new TitledBorder("Contrôles"));
+		JPanel panel = new JPanel(new BorderLayout(3, 3));
 		panel.setBorder(BorderFactory.createCompoundBorder(
 			new TitledBorder("Contrôles"),
-			new EmptyBorder(10, 10, 10, 10)
+			new EmptyBorder(5, 5, 5, 5)
 		));
 		
-		JPanel btnPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+		JPanel btnPanel = new JPanel(new GridLayout(2, 1, 3, 3));
 		
-		btnDemarrer = new JButton("▶ Démarrer l'optimisation");
+		btnDemarrer = new JButton("▶ Démarrer");
 		btnDemarrer.setEnabled(false);
-		btnDemarrer.setFont(new Font("Arial", Font.BOLD, 14));
+		btnDemarrer.setFont(new Font("Arial", Font.BOLD, 11));
 		btnDemarrer.setBackground(new Color(46, 204, 113));
 		btnDemarrer.setForeground(Color.WHITE);
 		btnDemarrer.setFocusPainted(false);
@@ -192,7 +195,7 @@ public class InterfaceRecuitSimule extends JFrame
 		
 		btnArreter = new JButton("⬛ Arrêter");
 		btnArreter.setEnabled(false);
-		btnArreter.setFont(new Font("Arial", Font.BOLD, 14));
+		btnArreter.setFont(new Font("Arial", Font.BOLD, 11));
 		btnArreter.setBackground(new Color(231, 76, 60));
 		btnArreter.setForeground(Color.WHITE);
 		btnArreter.setFocusPainted(false);
@@ -201,15 +204,10 @@ public class InterfaceRecuitSimule extends JFrame
 		btnPanel.add(btnDemarrer);
 		btnPanel.add(btnArreter);
 		
-		progressBar = new JProgressBar();
-		progressBar.setStringPainted(true);
-		progressBar.setString("En attente...");
+		lblStatut = new JLabel("En attente", JLabel.CENTER);
+		lblStatut.setFont(new Font("Arial", Font.PLAIN, 10));
 		
-		lblStatut = new JLabel("Statut : En attente", JLabel.CENTER);
-		lblStatut.setFont(new Font("Arial", Font.BOLD, 12));
-		
-		panel.add(btnPanel, BorderLayout.NORTH);
-		panel.add(progressBar, BorderLayout.CENTER);
+		panel.add(btnPanel, BorderLayout.CENTER);
 		panel.add(lblStatut, BorderLayout.SOUTH);
 		
 		return panel;
@@ -219,7 +217,6 @@ public class InterfaceRecuitSimule extends JFrame
 	{
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setBorder(new TitledBorder("Journal d'exécution"));
-		panel.setPreferredSize(new Dimension(0, 200));
 		
 		txtLog = new JTextArea();
 		txtLog.setEditable(false);
@@ -341,9 +338,7 @@ public class InterfaceRecuitSimule extends JFrame
 		spinMaxSansAmelio.setEnabled(false);
 		
 		enCours = true;
-		progressBar.setIndeterminate(true);
-		progressBar.setString("Optimisation en cours...");
-		lblStatut.setText("Statut : En cours");
+		lblStatut.setText("⏳ Statut : En cours");
 		txtLog.setText("");
 		
 		// Lancer l'optimisation dans un thread séparé
@@ -410,10 +405,7 @@ public class InterfaceRecuitSimule extends JFrame
 					lblMeilleureDistance.setText(String.format("%.2f", optimisee.calculerCoutTotal()));
 					lblTempsExecution.setText(String.format("%.2f s", tempsTotal));
 					
-					progressBar.setIndeterminate(false);
-					progressBar.setValue(100);
-					progressBar.setString("Terminé");
-					lblStatut.setText("Statut : Terminé");
+					lblStatut.setText("✅ Statut : Terminé");
 					
 					logMessage("");
 					logMessage("═══════════════════════════════════════");
@@ -426,6 +418,29 @@ public class InterfaceRecuitSimule extends JFrame
 					double gap = ((optimisee.calculerCoutTotal() - chargeur.getMeilleureSolutionConnue()) 
 					              / chargeur.getMeilleureSolutionConnue()) * 100;
 					logMessage("Gap vs meilleure connue : " + String.format("%.2f%%", gap));
+					
+					logMessage("");
+					logMessage("📋 Détail des tournées :");
+					logMessage("─────────────────────────────────────");
+					
+					for (int i = 0; i < optimisee.getTournees().size(); i++)
+					{
+						Tournee t = optimisee.getTournees().get(i);
+						double distTournee = t.calculerDistance(optimisee.getDepot());
+						
+						logMessage(String.format("Véhicule %2d [charge: %4d/%4d] [distance: %.2f]", 
+							i + 1, t.getChargeActuelle(), t.getCapaciteMax(), distTournee));
+						
+						// Parcours détaillé
+						StringBuilder parcours = new StringBuilder("  Parcours : 0");
+						for (Client c : t.getClients())
+						{
+							parcours.append(" → ").append(c.number);
+						}
+						parcours.append(" → 0");
+						logMessage(parcours.toString());
+					}
+					logMessage("─────────────────────────────────────");
 					
 					JOptionPane.showMessageDialog(InterfaceRecuitSimule.this,
 						String.format("Optimisation terminée !\n\nDistance : %.2f\nVéhicules : %d\nTemps : %.2f s",
@@ -469,9 +484,7 @@ public class InterfaceRecuitSimule extends JFrame
 		{
 			threadOptimisation.interrupt();
 			logMessage("⚠️ Optimisation interrompue par l'utilisateur");
-			progressBar.setIndeterminate(false);
-			progressBar.setString("Arrêté");
-			lblStatut.setText("Statut : Arrêté");
+			lblStatut.setText("🛑 Statut : Arrêté");
 		}
 	}
 	
