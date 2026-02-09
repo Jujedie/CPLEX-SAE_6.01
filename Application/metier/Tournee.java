@@ -55,12 +55,29 @@ public class Tournee
 
 	public List<Client> getClients()
 	{
-		return new ArrayList<>(clients);
+		return clients; // Retourner la référence directe pour les opérateurs
 	}
 
 	public int getChargeActuelle()
 	{
 		return chargeActuelle;
+	}
+	
+	public int getCapaciteMax()
+	{
+		return capaciteMax;
+	}
+	
+	/**
+	 * Recalcule la charge actuelle (utile après modification manuelle de la liste)
+	 */
+	public void updateCharge()
+	{
+		chargeActuelle = 0;
+		for (Client c : clients)
+		{
+			chargeActuelle += c.demand;
+		}
 	}
 
 	@Override

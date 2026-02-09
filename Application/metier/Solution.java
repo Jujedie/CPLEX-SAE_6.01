@@ -30,6 +30,10 @@ public  class Solution {
 		return tournees;
 	}
 	
+	public Client getDepot() {
+		return depot;
+	}
+	
 	public int getNombreVehicules() {
 		return tournees.size();
 	}
