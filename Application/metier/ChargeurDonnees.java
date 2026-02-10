@@ -95,7 +95,7 @@ public class ChargeurDonnees
 	/**
 	 * Calcule la matrice de distances euclidiennes entre tous les clients
 	 */
-	private void calculerMatriceDistances()
+	public void calculerMatriceDistances()
 	{
 		int n = clients.size();
 		double[][] matrice = new double[n][n];

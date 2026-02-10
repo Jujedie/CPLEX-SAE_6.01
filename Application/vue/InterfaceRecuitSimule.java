@@ -1,6 +1,7 @@
 package Application.vue;
 
 import Application.metier.*;
+import Application.controlleur.ControlleurRecuitSimule;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -11,6 +12,7 @@ import java.io.IOException;
 
 /**
  * Interface graphique complète pour l'algorithme de recuit simulé
+ * Vue MVC - communique uniquement avec le contrôleur
  */
 public class InterfaceRecuitSimule extends JFrame
 {
@@ -42,15 +44,14 @@ public class InterfaceRecuitSimule extends JFrame
 	private JLabel lblTempsExecution;
 	private JLabel lblMeilleureDistance;
 	
-	// Données
-	private ChargeurDonnees chargeur;
+	// Contrôleur
+	private ControlleurRecuitSimule controlleur;
 	private Solution solutionCourante;
-	private Thread threadOptimisation;
-	private boolean enCours = false;
 	
 	public InterfaceRecuitSimule()
 	{
 		super("Recuit Simulé - VRP (Vehicle Routing Problem)");
+		controlleur = new ControlleurRecuitSimule(this);
 		initComponents();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(1400, 900);
@@ -286,209 +287,172 @@ public class InterfaceRecuitSimule extends JFrame
 		try
 		{
 			logMessage("📥 Chargement des données...");
-			chargeur = new ChargeurDonnees();
 			
 			if (estURL)
 			{
-				chargeur.chargerDepuisURL(chemin);
+				controlleur.chargerDepuisURL(chemin);
 			}
 			else
 			{
-				chargeur.chargerDepuisFichier(chemin);
+				controlleur.chargerDepuisFichier(chemin);
 			}
 			
-			lblNbClients.setText(String.valueOf(chargeur.getNbClients()));
-			lblCapacite.setText(String.valueOf(chargeur.getCapaciteVehicule()));
-			lblMeilleurConnue.setText(String.format("%.2f", chargeur.getMeilleureSolutionConnue()));
-			
 			btnDemarrer.setEnabled(true);
-			logMessage("✓ Données chargées avec succès");
-			logMessage("  - " + chargeur.getNbClients() + " clients");
-			logMessage("  - Capacité : " + chargeur.getCapaciteVehicule());
-			logMessage("");
 		}
 		catch (IOException e)
 		{
-			JOptionPane.showMessageDialog(this, 
-				"Erreur lors du chargement du fichier :\n" + e.getMessage(),
-				"Erreur", JOptionPane.ERROR_MESSAGE);
+			afficherErreur("Erreur lors du chargement du fichier :\n" + e.getMessage());
 			logMessage("❌ Erreur : " + e.getMessage());
 		}
 	}
 	
 	private void demarrerOptimisation()
 	{
-		if (chargeur == null)
-		{
-			JOptionPane.showMessageDialog(this, 
-				"Veuillez d'abord charger un fichier de données",
-				"Attention", JOptionPane.WARNING_MESSAGE);
-			return;
-		}
+		// Récupérer les paramètres
+		double T0 = (Double) spinT0.getValue();
+		double seuil = (Double) spinSeuil.getValue();
+		double alpha = (Double) spinAlpha.getValue();
+		int iterParTemp = (Integer) spinIterParTemp.getValue();
+		int maxSansAmelio = (Integer) spinMaxSansAmelio.getValue();
 		
-		// Désactiver les contrôles
-		btnDemarrer.setEnabled(false);
-		btnArreter.setEnabled(true);
-		btnParcourir.setEnabled(false);
-		btnChargerURL.setEnabled(false);
-		spinT0.setEnabled(false);
-		spinSeuil.setEnabled(false);
-		spinAlpha.setEnabled(false);
-		spinIterParTemp.setEnabled(false);
-		spinMaxSansAmelio.setEnabled(false);
-		
-		enCours = true;
-		lblStatut.setText("⏳ Statut : En cours");
-		txtLog.setText("");
-		
-		// Lancer l'optimisation dans un thread séparé
-		threadOptimisation = new Thread(() -> {
-			try
-			{
-				long debut = System.currentTimeMillis();
-				
-				logMessage("🔨 Génération de la solution initiale...");
-				Solution initiale = Solution.heuristiquePlusProcheVoisin(
-					chargeur.getClients(), 
-					chargeur.getCapaciteVehicule()
-				);
-				logMessage("✓ Solution initiale : " + String.format("%.2f", initiale.calculerCoutTotal()));
-				logMessage("");
-				
-				// Récupérer les paramètres
-				double T0 = (Double) spinT0.getValue();
-				double seuil = (Double) spinSeuil.getValue();
-				double alpha = (Double) spinAlpha.getValue();
-				int iterParTemp = (Integer) spinIterParTemp.getValue();
-				int maxSansAmelio = (Integer) spinMaxSansAmelio.getValue();
-				
-				logMessage("⚙️ Paramètres :");
-				logMessage("  T₀ = " + T0);
-				logMessage("  Seuil = " + seuil);
-				logMessage("  α = " + alpha);
-				logMessage("  Itérations/temp = " + iterParTemp);
-				logMessage("  Max sans amélioration = " + maxSansAmelio);
-				logMessage("");
-				logMessage("🚀 Démarrage de l'optimisation...");
-				logMessage("");
-				
-				RecuitSimule rs = new RecuitSimule(T0, seuil, alpha, iterParTemp, maxSansAmelio);
-				
-				// Callback pour mise à jour de l'interface
-				rs.setProgressCallback((iter, temp, courante, meilleure, temps) -> {
-					if (iter % 500 == 0)
-					{
-						SwingUtilities.invokeLater(() -> {
-							solutionCourante = meilleure;
-							panelVisu.setSolution(meilleure);
-							lblMeilleureDistance.setText(String.format("%.2f", meilleure.calculerCoutTotal()));
-							lblTempsExecution.setText(String.format("%.1f s", temps / 1000.0));
-						});
-						
-						if (iter % 1000 == 0)
-						{
-							logMessage(String.format("[%6d] T=%.4f | Meilleure: %.2f", 
-								iter, temp, meilleure.calculerCoutTotal()));
-						}
-					}
-				});
-				
-				Solution optimisee = rs.resoudre(initiale);
-				
-				long fin = System.currentTimeMillis();
-				double tempsTotal = (fin - debut) / 1000.0;
-				
-				// Mise à jour finale
-				SwingUtilities.invokeLater(() -> {
-					solutionCourante = optimisee;
-					panelVisu.setSolution(optimisee);
-					lblMeilleureDistance.setText(String.format("%.2f", optimisee.calculerCoutTotal()));
-					lblTempsExecution.setText(String.format("%.2f s", tempsTotal));
-					
-					lblStatut.setText("✅ Statut : Terminé");
-					
-					logMessage("");
-					logMessage("═══════════════════════════════════════");
-					logMessage("✓ OPTIMISATION TERMINÉE");
-					logMessage("═══════════════════════════════════════");
-					logMessage("Distance finale : " + String.format("%.2f", optimisee.calculerCoutTotal()));
-					logMessage("Véhicules : " + optimisee.getNombreVehicules());
-					logMessage("Temps total : " + String.format("%.2f s", tempsTotal));
-					
-					double gap = ((optimisee.calculerCoutTotal() - chargeur.getMeilleureSolutionConnue()) 
-					              / chargeur.getMeilleureSolutionConnue()) * 100;
-					logMessage("Gap vs meilleure connue : " + String.format("%.2f%%", gap));
-					
-					logMessage("");
-					logMessage("📋 Détail des tournées :");
-					logMessage("─────────────────────────────────────");
-					
-					for (int i = 0; i < optimisee.getTournees().size(); i++)
-					{
-						Tournee t = optimisee.getTournees().get(i);
-						double distTournee = t.calculerDistance(optimisee.getDepot());
-						
-						logMessage(String.format("Véhicule %2d [charge: %4d/%4d] [distance: %.2f]", 
-							i + 1, t.getChargeActuelle(), t.getCapaciteMax(), distTournee));
-						
-						// Parcours détaillé
-						StringBuilder parcours = new StringBuilder("  Parcours : 0");
-						for (Client c : t.getClients())
-						{
-							parcours.append(" → ").append(c.number);
-						}
-						parcours.append(" → 0");
-						logMessage(parcours.toString());
-					}
-					logMessage("─────────────────────────────────────");
-					
-					JOptionPane.showMessageDialog(InterfaceRecuitSimule.this,
-						String.format("Optimisation terminée !\n\nDistance : %.2f\nVéhicules : %d\nTemps : %.2f s",
-							optimisee.calculerCoutTotal(), optimisee.getNombreVehicules(), tempsTotal),
-						"Résultat", JOptionPane.INFORMATION_MESSAGE);
-				});
-			}
-			catch (Exception e)
-			{
-				SwingUtilities.invokeLater(() -> {
-					logMessage("❌ Erreur : " + e.getMessage());
-					JOptionPane.showMessageDialog(InterfaceRecuitSimule.this,
-						"Erreur durant l'optimisation :\n" + e.getMessage(),
-						"Erreur", JOptionPane.ERROR_MESSAGE);
-				});
-				e.printStackTrace();
-			}
-			finally
-			{
-				SwingUtilities.invokeLater(() -> {
-					btnDemarrer.setEnabled(true);
-					btnArreter.setEnabled(false);
-					btnParcourir.setEnabled(true);
-					btnChargerURL.setEnabled(true);
-					spinT0.setEnabled(true);
-					spinSeuil.setEnabled(true);
-					spinAlpha.setEnabled(true);
-					spinIterParTemp.setEnabled(true);
-					spinMaxSansAmelio.setEnabled(true);
-					enCours = false;
-				});
-			}
-		});
-		
-		threadOptimisation.start();
+		// Déléguer au contrôleur
+		controlleur.demarrerOptimisation(T0, seuil, alpha, iterParTemp, maxSansAmelio);
 	}
 	
 	private void arreterOptimisation()
 	{
-		if (threadOptimisation != null && threadOptimisation.isAlive())
-		{
-			threadOptimisation.interrupt();
-			logMessage("⚠️ Optimisation interrompue par l'utilisateur");
-			lblStatut.setText("🛑 Statut : Arrêté");
-		}
+		controlleur.arreterOptimisation();
 	}
 	
-	private void logMessage(String message)
+	// ========== Méthodes publiques appelées par le contrôleur ==========
+	
+	/**
+	 * Affiche les informations sur les données chargées
+	 */
+	public void afficherInfosDonnees(int nbClients, int capacite, double meilleureSolutionConnue)
+	{
+		SwingUtilities.invokeLater(() -> {
+			lblNbClients.setText(String.valueOf(nbClients));
+			lblCapacite.setText(String.valueOf(capacite));
+			lblMeilleurConnue.setText(String.format("%.2f", meilleureSolutionConnue));
+		});
+	}
+	
+	/**
+	 * Active ou désactive le mode optimisation
+	 */
+	public void activerModeOptimisation(boolean enCours)
+	{
+		SwingUtilities.invokeLater(() -> {
+			btnDemarrer.setEnabled(!enCours);
+			btnArreter.setEnabled(enCours);
+			btnParcourir.setEnabled(!enCours);
+			btnChargerURL.setEnabled(!enCours);
+			spinT0.setEnabled(!enCours);
+			spinSeuil.setEnabled(!enCours);
+			spinAlpha.setEnabled(!enCours);
+			spinIterParTemp.setEnabled(!enCours);
+			spinMaxSansAmelio.setEnabled(!enCours);
+			
+			if (enCours)
+			{
+				lblStatut.setText("⏳ En cours");
+				txtLog.setText("");
+			}
+		});
+	}
+	
+	/**
+	 * Met à jour la solution affichée
+	 */
+	public void mettreAJourSolution(Solution solution, long tempsMs)
+	{
+		SwingUtilities.invokeLater(() -> {
+			solutionCourante = solution;
+			panelVisu.setSolution(solution);
+			lblMeilleureDistance.setText(String.format("%.2f", solution.calculerCoutTotal()));
+			lblTempsExecution.setText(String.format("%.1f s", tempsMs / 1000.0));
+		});
+	}
+	
+	/**
+	 * Affiche le résultat final de l'optimisation
+	 */
+	public void afficherResultatFinal(Solution optimisee, double tempsTotal, double meilleureSolutionConnue)
+	{
+		SwingUtilities.invokeLater(() -> {
+			solutionCourante = optimisee;
+			panelVisu.setSolution(optimisee);
+			lblMeilleureDistance.setText(String.format("%.2f", optimisee.calculerCoutTotal()));
+			lblTempsExecution.setText(String.format("%.2f s", tempsTotal));
+			lblStatut.setText("✅ Terminé");
+			
+			logMessage("");
+			logMessage("═══════════════════════════════════════");
+			logMessage("✓ OPTIMISATION TERMINÉE");
+			logMessage("═══════════════════════════════════════");
+			logMessage("Distance finale : " + String.format("%.2f", optimisee.calculerCoutTotal()));
+			logMessage("Véhicules : " + optimisee.getNombreVehicules());
+			logMessage("Temps total : " + String.format("%.2f s", tempsTotal));
+			
+			double gap = ((optimisee.calculerCoutTotal() - meilleureSolutionConnue) 
+			              / meilleureSolutionConnue) * 100;
+			logMessage("Gap vs meilleure connue : " + String.format("%.2f%%", gap));
+			
+			logMessage("");
+			logMessage("📋 Détail des tournées :");
+			logMessage("─────────────────────────────────────");
+			
+			for (int i = 0; i < optimisee.getTournees().size(); i++)
+			{
+				Tournee t = optimisee.getTournees().get(i);
+				double distTournee = t.calculerDistance(optimisee.getDepot());
+				
+				logMessage(String.format("Véhicule %2d [charge: %4d/%4d] [distance: %.2f]", 
+					i + 1, t.getChargeActuelle(), t.getCapaciteMax(), distTournee));
+				
+				// Parcours détaillé
+				StringBuilder parcours = new StringBuilder("  Parcours : 0");
+				for (Client c : t.getClients())
+				{
+					parcours.append(" → ").append(c.number);
+				}
+				parcours.append(" → 0");
+				logMessage(parcours.toString());
+			}
+			logMessage("─────────────────────────────────────");
+			
+			JOptionPane.showMessageDialog(InterfaceRecuitSimule.this,
+				String.format("Optimisation terminée !\n\nDistance : %.2f\nVéhicules : %d\nTemps : %.2f s",
+					optimisee.calculerCoutTotal(), optimisee.getNombreVehicules(), tempsTotal),
+				"Résultat", JOptionPane.INFORMATION_MESSAGE);
+		});
+	}
+	
+	/**
+	 * Notifie que l'optimisation a été arrêtée
+	 */
+	public void notifierArret()
+	{
+		SwingUtilities.invokeLater(() -> {
+			lblStatut.setText("🛑 Arrêté");
+		});
+	}
+	
+	/**
+	 * Affiche un message d'erreur
+	 */
+	public void afficherErreur(String message)
+	{
+		SwingUtilities.invokeLater(() -> {
+			JOptionPane.showMessageDialog(this, message, "Erreur", JOptionPane.ERROR_MESSAGE);
+		});
+	}
+	
+	/**
+	 * Ajoute un message au journal d'exécution
+	 */
+	public void logMessage(String message)
 	{
 		SwingUtilities.invokeLater(() -> {
 			txtLog.append(message + "\n");
