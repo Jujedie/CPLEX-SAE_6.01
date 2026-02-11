@@ -1,13 +1,12 @@
 package Application.vue;
 
-import Application.metier.*;
 import Application.controlleur.ControlleurRecuitSimule;
-
-import javax.swing.*;
-import javax.swing.border.*;
+import Application.metier.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.*;
+import javax.swing.border.*;
 
 /**
  * Interface graphique complète pour l'algorithme de recuit simulé
@@ -295,6 +294,9 @@ public class InterfaceRecuitSimule extends JFrame
 		}
 	}
 	
+	/**
+	 * Démarre l'optimisation en récupérant les paramètres et en appelant le contrôleur
+	 */
 	private void demarrerOptimisation()
 	{
 		// Récupérer les paramètres

@@ -23,6 +23,13 @@ public class Client
 		matriceDistances = matrice;
 	}
 
+	/**
+	 * Calcule la distance entre ce client et un autre client.
+	 * Si une matrice de distances est définie, elle est utilisée.
+	 * Sinon, la distance euclidienne est calculée.
+	 * @param other l'autre client
+	 * @return la distance entre les deux clients
+	 */
 	public double distanceTo(Client other)
 	{
 		// Si une matrice de distances est définie, l'utiliser
