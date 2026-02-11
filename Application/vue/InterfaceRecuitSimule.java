@@ -106,12 +106,18 @@ public class InterfaceRecuitSimule extends JFrame
 		txtFichier.setEditable(false);
 		
 		btnParcourir = new JButton("📁 Parcourir");
+		btnParcourir.setBackground(new Color(230, 126, 34));
+		btnParcourir.setForeground(Color.WHITE);
+		btnParcourir.setFocusPainted(false);
 		btnParcourir.addActionListener(e -> parcourirFichier());
 		
 		topPanel.add(txtFichier, BorderLayout.CENTER);
 		topPanel.add(btnParcourir, BorderLayout.EAST);
 		
 		btnChargerURL = new JButton("🌐 Charger tai75a.txt depuis Internet");
+		btnChargerURL.setBackground(new Color(52, 152, 219));
+		btnChargerURL.setForeground(Color.WHITE);
+		btnChargerURL.setFocusPainted(false);
 		btnChargerURL.addActionListener(e -> chargerDepuisURL());
 		
 		JPanel infoPanel = new JPanel(new GridLayout(3, 2, 5, 5));
@@ -241,25 +247,19 @@ public class InterfaceRecuitSimule extends JFrame
 	
 	private void parcourirFichier()
 	{
-		JFileChooser chooser = new JFileChooser();
-		chooser.setFileFilter(new javax.swing.filechooser.FileFilter()
-		{
-			public boolean accept(File f)
-			{
-				return f.isDirectory() || f.getName().toLowerCase().endsWith(".txt");
-			}
-			
-			public String getDescription()
-			{
-				return "Fichiers VRP (*.txt)";
-			}
-		});
+		FileDialog fileDialog = new FileDialog(this, "Sélectionner le fichier source", FileDialog.LOAD);
+		fileDialog.setDirectory(System.getProperty("user.dir"));
+		fileDialog.setFilenameFilter((dir, name) -> name.toLowerCase().endsWith(".txt"));
+		fileDialog.setVisible(true);
 		
-		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+		String directory = fileDialog.getDirectory();
+		String file = fileDialog.getFile();
+		
+		if (directory != null && file != null)
 		{
-			File fichier = chooser.getSelectedFile();
-			txtFichier.setText(fichier.getAbsolutePath());
-			chargerFichier(fichier.getAbsolutePath(), false);
+			String chemin = directory + file;
+			txtFichier.setText(chemin);
+			chargerFichier(chemin, false);
 		}
 	}
 	
