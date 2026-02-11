@@ -150,7 +150,7 @@ public class InterfaceRecuitSimule extends JFrame
 		
 		// Température initiale
 		panel.add(new JLabel("Température initiale (T₀) :"));
-		spinT0 = new JSpinner(new SpinnerNumberModel(10000.0, 100.0, 100000.0, 1000.0));
+		spinT0 = new JSpinner(new SpinnerNumberModel(1000.0, 100.0, 100000.0, 1000.0));
 		panel.add(spinT0);
 		
 		// Seuil d'arrêt
@@ -160,17 +160,17 @@ public class InterfaceRecuitSimule extends JFrame
 		
 		// Alpha
 		panel.add(new JLabel("Coefficient α (refroidissement) :"));
-		spinAlpha = new JSpinner(new SpinnerNumberModel(0.95, 0.1, 0.99, 0.01));
+		spinAlpha = new JSpinner(new SpinnerNumberModel(0.99, 0.1, 0.99999, 0.0001));
 		panel.add(spinAlpha);
 		
 		// Itérations par température
 		panel.add(new JLabel("Itérations par température :"));
-		spinIterParTemp = new JSpinner(new SpinnerNumberModel(100, 10, 1000, 10));
+		spinIterParTemp = new JSpinner(new SpinnerNumberModel(5000, 10, 50000, 100));
 		panel.add(spinIterParTemp);
 		
 		// Max sans amélioration
 		panel.add(new JLabel("Max itérations sans amélioration :"));
-		spinMaxSansAmelio = new JSpinner(new SpinnerNumberModel(5000, 100, 50000, 500));
+		spinMaxSansAmelio = new JSpinner(new SpinnerNumberModel(200000, 100, 500000, 500));
 		panel.add(spinMaxSansAmelio);
 		
 		return panel;
@@ -194,16 +194,7 @@ public class InterfaceRecuitSimule extends JFrame
 		btnDemarrer.setFocusPainted(false);
 		btnDemarrer.addActionListener(e -> demarrerOptimisation());
 		
-		btnArreter = new JButton("⬛ Arrêter");
-		btnArreter.setEnabled(false);
-		btnArreter.setFont(new Font("Arial", Font.BOLD, 11));
-		btnArreter.setBackground(new Color(231, 76, 60));
-		btnArreter.setForeground(Color.WHITE);
-		btnArreter.setFocusPainted(false);
-		btnArreter.addActionListener(e -> arreterOptimisation());
-		
 		btnPanel.add(btnDemarrer);
-		btnPanel.add(btnArreter);
 		
 		lblStatut = new JLabel("En attente", JLabel.CENTER);
 		lblStatut.setFont(new Font("Arial", Font.PLAIN, 10));
@@ -345,7 +336,6 @@ public class InterfaceRecuitSimule extends JFrame
 	{
 		SwingUtilities.invokeLater(() -> {
 			btnDemarrer.setEnabled(!enCours);
-			btnArreter.setEnabled(enCours);
 			btnParcourir.setEnabled(!enCours);
 			btnChargerURL.setEnabled(!enCours);
 			spinT0.setEnabled(!enCours);
@@ -369,7 +359,7 @@ public class InterfaceRecuitSimule extends JFrame
 	{
 		SwingUtilities.invokeLater(() -> {
 			solutionCourante = solution;
-			panelVisu.setSolution(solution);
+			// panelVisu.setSolution(solution); // Affichage uniquement à la fin
 			lblMeilleureDistance.setText(String.format("%.2f", solution.calculerCoutTotal()));
 			lblTempsExecution.setText(String.format("%.1f s", tempsMs / 1000.0));
 		});

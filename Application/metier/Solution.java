@@ -20,10 +20,20 @@ public  class Solution {
 	
 	public double calculerCoutTotal() {
 		double cout = 0;
+		int depassementTotal = 0;
+		
 		for (Tournee t : tournees) {
 			cout += t.calculerDistance(depot);
+			int charge = t.getChargeActuelle();
+			int cap = t.getCapaciteMax();
+			if (charge > cap) {
+				depassementTotal += (charge - cap);
+			}
 		}
-		return cout;
+		
+		// Pénalité stricte pour guider vers une solution réalisable
+		// Pour tai75a (10 camions pleins), il faut traverser des états infaisables
+		return cout + (depassementTotal * 50.0);
 	}
 	
 	public List<Tournee> getTournees() {
@@ -112,61 +122,5 @@ public  class Solution {
 		}
 		
 		return solution;
-	}
-	
-	/**
-	 * Méthode de test pour démontrer l'utilisation de l'algorithme
-	 * Utilise les données réelles du fichier Systeme-Livreurs-Cantines.dat
-	 */
-	public static void main(String[] args) {
-		// Matrice de distances du fichier Systeme-Livreurs-Cantines.dat
-		double[][] matriceDistances = {
-			{0, 2.7, 4.6, 2.8, 3, 3.3, 3.1, 2.7, 5.1, 3.9, 4.7},
-			{2.7, 0, 3.1, 0.8, 1.8, 2.5, 4.2, 1.4, 3.6, 2.5, 3},
-			{4.6, 3.1, 0, 3.3, 4.4, 1.7, 6.8, 4.1, 1.3, 1.7, 1.4},
-			{2.8, 0.8, 3.3, 0, 1.9, 2, 4, 1.5, 3.8, 2.8, 3.2},
-			{3, 1.8, 4.4, 1.9, 0, 3.4, 2.6, 0.5, 4.7, 4.7, 4.1},
-			{3.3, 2.5, 1.7, 2, 3.4, 0, 5.8, 3, 1.8, 0.5, 2.6},
-			{3.1, 4.2, 6.8, 4, 2.6, 5.8, 0, 3, 7.4, 6.1, 7.6},
-			{2.7, 1.4, 4.1, 1.5, 0.5, 3, 3, 0, 4.6, 3.7, 4.3},
-			{5.1, 3.6, 1.3, 3.8, 4.7, 1.8, 7.4, 4.6, 0, 1.4, 2.8},
-			{3.9, 2.5, 1.7, 2.8, 4.7, 0.5, 6.1, 3.7, 1.4, 0, 2.8},
-			{4.7, 3, 1.4, 3.2, 4.1, 2.6, 7.6, 4.3, 2.8, 2.8, 0}
-		};
-		
-		// Initialiser la matrice de distances dans la classe Client
-		Client.setMatriceDistances(matriceDistances);
-		
-		// Données réelles du fichier Systeme-Livreurs-Cantines.dat
-		// noeuds: S (dépôt), A, B, C, D, E, F, G, H, I, J
-		// Demandes: [60, 18, 26, 15, 44, 32, 20, 10, 27, 11]
-		
-		List<Client> clients = new ArrayList<>();
-		
-		// Dépôt S (position 0, demande 0)
-		clients.add(new Client(0, 0, 0, 0));
-		
-		// Clients A à J avec leurs demandes (x et y ne sont plus utilisés)
-		clients.add(new Client(1, 60, 0, 0));   // A - demande: 60
-		clients.add(new Client(2, 18, 0, 0));   // B - demande: 18
-		clients.add(new Client(3, 26, 0, 0));   // C - demande: 26
-		clients.add(new Client(4, 15, 0, 0));   // D - demande: 15
-		clients.add(new Client(5, 44, 0, 0));   // E - demande: 44
-		clients.add(new Client(6, 32, 0, 0));   // F - demande: 32
-		clients.add(new Client(7, 20, 0, 0));   // G - demande: 20
-		clients.add(new Client(8, 10, 0, 0));   // H - demande: 10
-		clients.add(new Client(9, 27, 0, 0));   // I - demande: 27
-		clients.add(new Client(10, 11, 0, 0));  // J - demande: 11
-		
-		int capaciteVehicule = 100;
-		
-		System.out.println("=== TEST HEURISTIQUE PLUS PROCHE VOISIN ===");
-		System.out.println("Données: Systeme-Livreurs-Cantines\n");
-		System.out.println("Nombre de clients : " + (clients.size() - 1));
-		System.out.println("Capacité des véhicules : " + capaciteVehicule);
-		System.out.println("Demande totale : " + (60+18+26+15+44+32+20+10+27+11) + "\n");
-		
-		Solution solution = heuristiquePlusProcheVoisin(clients, capaciteVehicule);
-		System.out.println(solution);
 	}
 }

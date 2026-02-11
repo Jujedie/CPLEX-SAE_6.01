@@ -29,7 +29,6 @@ public class ControlleurRecuitSimule
 	{
 		chargeur = new ChargeurDonnees();
 		chargeur.chargerDepuisURL(url);
-		chargeur.calculerMatriceDistances();
 		
 		vue.afficherInfosDonnees(
 			chargeur.getNbClients(),
@@ -49,7 +48,6 @@ public class ControlleurRecuitSimule
 	{
 		chargeur = new ChargeurDonnees();
 		chargeur.chargerDepuisFichier(chemin);
-		chargeur.calculerMatriceDistances();
 		
 		vue.afficherInfosDonnees(
 			chargeur.getNbClients(),

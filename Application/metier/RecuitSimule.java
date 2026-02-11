@@ -38,7 +38,7 @@ public class RecuitSimule
 	 */
 	public RecuitSimule()
 	{
-		this(10000.0, 0.01, 0.95, 100, 1000);
+		this(5000.0, 0.01, 0.99, 1500, 5000);
 	}
 	
 	/**
@@ -66,17 +66,6 @@ public class RecuitSimule
 	 */
 	public Solution resoudre(Solution solutionInitiale)
 	{
-		System.out.println("\n╔════════════════════════════════════════════════════════════╗");
-		System.out.println("║         ALGORITHME DE RECUIT SIMULÉ - VRP                 ║");
-		System.out.println("╚════════════════════════════════════════════════════════════╝");
-		System.out.println("\nParamètres :");
-		System.out.println("  • Température initiale (T₀)        : " + temperatureInitiale);
-		System.out.println("  • Seuil d'arrêt (Tₘᵢₙ)              : " + temperatureSeuilArret);
-		System.out.println("  • Coefficient α                     : " + alpha);
-		System.out.println("  • Itérations par température       : " + iterationsParTemperature);
-		System.out.println("  • Max itérations sans amélioration : " + maxIterationsSansAmelioration);
-		System.out.println();
-		
 		tempsDebut = System.currentTimeMillis();
 		
 		// Initialisation
@@ -89,14 +78,6 @@ public class RecuitSimule
 		double coutCourant = solutionCourante.calculerCoutTotal();
 		double meilleurCout = coutCourant;
 		
-		System.out.println("Solution initiale : " + String.format("%.2f", coutCourant));
-		System.out.println("\nDémarrage de l'optimisation...\n");
-		
-		// DEBUG : Compteurs
-		int nbAcceptes = 0;
-		int nbAmeliorations = 0;
-		int nbVoisinsDifferents = 0;
-		
 		// Boucle principale
 		while (temperatureCourante > temperatureSeuilArret && 
 		       iterationsSansAmelioration < maxIterationsSansAmelioration)
@@ -108,12 +89,6 @@ public class RecuitSimule
 				// Générer une solution voisine
 				Solution voisin = OperateursVoisinage.genererVoisin(solutionCourante);
 				double coutVoisin = voisin.calculerCoutTotal();
-				
-				// DEBUG : Vérifier si le voisin est différent
-				if (Math.abs(coutVoisin - coutCourant) > 0.001)
-				{
-					nbVoisinsDifferents++;
-				}
 				
 				// Calcul de la variation de coût
 				double delta = coutVoisin - coutCourant;
@@ -136,7 +111,6 @@ public class RecuitSimule
 				{
 					solutionCourante = voisin;
 					coutCourant = coutVoisin;
-					nbAcceptes++;
 					
 					// Mise à jour de la meilleure solution
 					if (coutCourant < meilleurCout)
@@ -144,7 +118,6 @@ public class RecuitSimule
 						meilleureSolution = copierSolution(solutionCourante);
 						meilleurCout = coutCourant;
 						iterationsSansAmelioration = 0;
-						nbAmeliorations++;
 					}
 					else
 					{
@@ -166,55 +139,11 @@ public class RecuitSimule
 			
 			// Refroidissement
 			temperatureCourante *= alpha;
-			
-			// Affichage périodique avec statistiques
-			if (iterationTotale % 1000 == 0)
-			{
-				long tempsEcoule = (System.currentTimeMillis() - tempsDebut) / 1000;
-				System.out.printf("Itération %6d | T=%.4f | Courante: %.2f | Meilleure: %.2f | Temps: %ds | Voisins diff: %d | Acceptés: %d | Améliorations: %d%n",
-					iterationTotale, temperatureCourante, coutCourant, meilleurCout, tempsEcoule, 
-					nbVoisinsDifferents, nbAcceptes, nbAmeliorations);
-				// Reset compteurs
-				nbVoisinsDifferents = 0;
-				nbAcceptes = 0;
-				nbAmeliorations = 0;
-			}
 		}
 		
 		tempsFin = System.currentTimeMillis();
 		
-		// Résultats finaux
-		afficherResultatsFinaux();
-		
 		return meilleureSolution;
-	}
-	
-	/**
-	 * Affiche les résultats finaux de l'optimisation
-	 */
-	private void afficherResultatsFinaux()
-	{
-		double tempsExecution = (tempsFin - tempsDebut) / 1000.0;
-		
-		System.out.println("\n╔════════════════════════════════════════════════════════════╗");
-		System.out.println("║                    RÉSULTATS FINAUX                        ║");
-		System.out.println("╚════════════════════════════════════════════════════════════╝");
-		System.out.println("\nCritère d'arrêt atteint :");
-		if (temperatureCourante <= temperatureSeuilArret)
-		{
-			System.out.println("  → Température minimale atteinte (T = " + String.format("%.6f", temperatureCourante) + ")");
-		}
-		else
-		{
-			System.out.println("  → Pas d'amélioration depuis " + maxIterationsSansAmelioration + " itérations");
-		}
-		
-		System.out.println("\nStatistiques :");
-		System.out.println("  • Nombre total d'itérations : " + iterationTotale);
-		System.out.println("  • Temps d'exécution         : " + String.format("%.2f", tempsExecution) + " secondes");
-		System.out.println("  • Meilleur coût trouvé      : " + String.format("%.2f", meilleureSolution.calculerCoutTotal()));
-		System.out.println("  • Nombre de véhicules       : " + meilleureSolution.getNombreVehicules());
-		System.out.println();
 	}
 	
 	/**

@@ -44,7 +44,7 @@ public class ChargeurDonnees
 			String extention = cheminFichier.substring(cheminFichier.lastIndexOf(".") + 1).toLowerCase();
 			if (!extention.equals("dat") && !extention.equals("txt"))
 			{
-				System.out.println("⚠️  Attention : le fichier n'a pas une extension .dat ou .txt, vérifiez que c'est un fichier VRP valide.");
+				// System.out.println("⚠️  Attention : le fichier n'a pas une extension .dat ou .txt, vérifiez que c'est un fichier VRP valide.");
 			}
 
 			if (extention.equals("dat"))
@@ -92,6 +92,7 @@ public class ChargeurDonnees
 							this.nbClients++;
 						} else {
 							this.depot = new Client(0, 0, (int)(Math.random() * 800), (int)(Math.random() * 600));
+							this.clients.add(this.depot);
 						}
 					}
 				}
@@ -114,9 +115,12 @@ public class ChargeurDonnees
 
 				String demandes = ligne.substring(ligne.indexOf('[') + 1, ligne.indexOf(']')).trim();
 				String[] demandesArray = demandes.split(",");
-				for (int i = 0; i < demandesArray.length && i < clients.size(); i++)
+				// Les demandes correspondent aux clients (pas au dépôt)
+				// On suppose que le dépôt est le premier élément (index 0) de la liste clients
+				// et que le tableau demande correspond aux clients 1 à N
+				for (int i = 0; i < demandesArray.length && (i + 1) < clients.size(); i++)
 				{
-					clients.get(i).demand = Integer.parseInt(demandesArray[i].trim());
+					clients.get(i + 1).demand = Integer.parseInt(demandesArray[i].trim());
 				}
 			}
 
@@ -124,14 +128,14 @@ public class ChargeurDonnees
 			{
 				double[][] matrice = new double[this.nbClients+1][this.nbClients+1];
 
-				System.out.println("Clients chargés : "+matrice.length);
+				// System.out.println("Clients chargés : "+matrice.length);
 
 				ligne = reader.readLine().trim();
 				String[] distancesArray = ligne.substring(ligne.indexOf('[') + 1, ligne.indexOf(']')).split(",");
 				for (int j = 0; j < distancesArray.length; j++)
 				{
 					matrice[0][j] = Double.parseDouble(distancesArray[j].trim());
-					System.out.print(String.format("%.2f ", matrice[0][j])+", ");
+					// System.out.print(String.format("%.2f ", matrice[0][j])+", ");
 				}
 
 				for(int i = 0 ; i < this.nbClients; i++)
@@ -144,7 +148,7 @@ public class ChargeurDonnees
 						
 					}
 				}
-				System.out.println();
+				// System.out.println();
 
 				Client.setMatriceDistances(matrice);
 				break; // On peut arrêter la lecture après avoir trouvé la matrice de distances
@@ -157,9 +161,9 @@ public class ChargeurDonnees
 			depot = clients.get(0);
 		}
 
-		System.out.println("✓ Données OPL chargées : " + nbClients + " clients");
-		System.out.println("  Capacité véhicule : " + capaciteVehicule);
-		System.out.println("  Meilleure solution connue : " + meilleureSolutionConnue);
+		// System.out.println("✓ Données OPL chargées : " + nbClients + " clients");
+		// System.out.println("  Capacité véhicule : " + capaciteVehicule);
+		// System.out.println("  Meilleure solution connue : " + meilleureSolutionConnue);
 	}
 	
 	/**
@@ -201,9 +205,9 @@ public class ChargeurDonnees
 			clients.add(new Client(numero, demande, x, y));
 		}
 		
-		System.out.println("✓ Données chargées : " + nbClients + " clients");
-		System.out.println("  Capacité véhicule : " + capaciteVehicule);
-		System.out.println("  Meilleure solution connue : " + meilleureSolutionConnue);
+		// System.out.println("✓ Données chargées : " + nbClients + " clients");
+		// System.out.println("  Capacité véhicule : " + capaciteVehicule);
+		// System.out.println("  Meilleure solution connue : " + meilleureSolutionConnue);
 		
 		// Calculer et initialiser la matrice de distances euclidiennes
 		calculerMatriceDistances();
@@ -238,7 +242,7 @@ public class ChargeurDonnees
 		
 		// Initialiser la matrice statique dans Client
 		Client.setMatriceDistances(matrice);
-		System.out.println("  Matrice de distances calculée (" + n + "x" + n + ")");
+		// System.out.println("  Matrice de distances calculée (" + n + "x" + n + ")");
 	}
 	
 	public int getNbClients() { return nbClients; }
