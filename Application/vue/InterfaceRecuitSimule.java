@@ -6,7 +6,6 @@ import Application.controlleur.ControlleurRecuitSimule;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -30,7 +29,6 @@ public class InterfaceRecuitSimule extends JFrame
 	
 	// Contrôles
 	private JButton btnDemarrer;
-	private JButton btnArreter;
 	
 	// Affichage des résultats
 	private JTextArea txtLog;
@@ -310,11 +308,7 @@ public class InterfaceRecuitSimule extends JFrame
 		controlleur.demarrerOptimisation(T0, seuil, alpha, iterParTemp, maxSansAmelio);
 	}
 	
-	private void arreterOptimisation()
-	{
-		controlleur.arreterOptimisation();
-	}
-	
+
 	// ========== Méthodes publiques appelées par le contrôleur ==========
 	
 	/**

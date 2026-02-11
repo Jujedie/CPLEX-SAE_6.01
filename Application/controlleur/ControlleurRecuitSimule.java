@@ -146,19 +146,6 @@ public class ControlleurRecuitSimule
 	}
 	
 	/**
-	 * Arrête l'optimisation en cours
-	 */
-	public void arreterOptimisation()
-	{
-		if (threadOptimisation != null && threadOptimisation.isAlive())
-		{
-			threadOptimisation.interrupt();
-			vue.logMessage("⚠️ Optimisation interrompue par l'utilisateur");
-			vue.notifierArret();
-		}
-	}
-	
-	/**
 	 * Vérifie si des données sont chargées
 	 */
 	public boolean donneesChargees()
