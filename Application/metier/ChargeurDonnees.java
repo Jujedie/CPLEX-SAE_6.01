@@ -8,6 +8,9 @@ import java.util.List;
 
 /**
  * Classe pour charger les données depuis un fichier VRP (local ou URL)
+ * Supporte les formats classiques (nombre de clients, capacité, coordonnées, demandes)
+ * 
+ * @author Equipe 4
  */
 public class ChargeurDonnees
 {
@@ -24,6 +27,9 @@ public class ChargeurDonnees
 	
 	/**
 	 * Charge les données depuis une URL
+	 * 
+	 * @param urlString URL vers le fichier de données VRP (ex: "https://example.com/tai75a.txt")
+	 * @throws IOException Si les données ne peuvent pas être chargées
 	 */
 	public void chargerDepuisURL(String urlString) throws IOException
 	{
@@ -36,6 +42,9 @@ public class ChargeurDonnees
 	
 	/**
 	 * Charge les données depuis un fichier local
+	 * 
+	 * @param cheminFichier Chemin vers le fichier de données VRP (ex: "data/tai75a.txt")
+	 * @throws IOException Si le fichier ne peut pas être lu
 	 */
 	public void chargerDepuisFichier(String cheminFichier) throws IOException
 	{
@@ -60,6 +69,9 @@ public class ChargeurDonnees
 
 	/**
 	 * Parse les données depuis un Reader
+	 * 
+	 * @param reader BufferedReader pour lire les données du fichier .dat OPL
+	 * @throws IOException Si une erreur de lecture se produit
 	 */
 	private void chargerOPLDepuisReader(BufferedReader reader) throws IOException
 	{
@@ -128,14 +140,12 @@ public class ChargeurDonnees
 			{
 				double[][] matrice = new double[this.nbClients+1][this.nbClients+1];
 
-				// System.out.println("Clients chargés : "+matrice.length);
 
 				ligne = reader.readLine().trim();
 				String[] distancesArray = ligne.substring(ligne.indexOf('[') + 1, ligne.indexOf(']')).split(",");
 				for (int j = 0; j < distancesArray.length; j++)
 				{
 					matrice[0][j] = Double.parseDouble(distancesArray[j].trim());
-					// System.out.print(String.format("%.2f ", matrice[0][j])+", ");
 				}
 
 				for(int i = 0 ; i < this.nbClients; i++)
@@ -148,26 +158,24 @@ public class ChargeurDonnees
 						
 					}
 				}
-				// System.out.println();
+
 
 				Client.setMatriceDistances(matrice);
 				break; // On peut arrêter la lecture après avoir trouvé la matrice de distances
 			}
 		}
 
-		// Set depot as the first client (index 0)
 		if (!clients.isEmpty())
 		{
 			depot = clients.get(0);
 		}
-
-		// System.out.println("✓ Données OPL chargées : " + nbClients + " clients");
-		// System.out.println("  Capacité véhicule : " + capaciteVehicule);
-		// System.out.println("  Meilleure solution connue : " + meilleureSolutionConnue);
 	}
 	
 	/**
 	 * Parse les données depuis un Reader
+	 * 
+	 * @param reader BufferedReader pour lire les données du fichier .txt classique
+	 * @throws IOException Si une erreur de lecture se produit
 	 */
 	private void chargerDepuisReader(BufferedReader reader) throws IOException
 	{
@@ -184,11 +192,11 @@ public class ChargeurDonnees
 		capaciteVehicule = Integer.parseInt(ligne);
 		
 		// Ligne 3 : coordonnées du dépôt
-		ligne = reader.readLine().trim();
-		parts = ligne.split("\\s+");
+		ligne      = reader.readLine().trim();
+		parts      = ligne.split("\\s+");
 		int depotX = Integer.parseInt(parts[0]);
 		int depotY = Integer.parseInt(parts[1]);
-		depot = new Client(0, 0, depotX, depotY);
+		depot      = new Client(0, 0, depotX, depotY);
 		clients.add(depot);
 		
 		// Lignes suivantes : clients (numéro, x, y, demande)
@@ -197,17 +205,13 @@ public class ChargeurDonnees
 			ligne = reader.readLine().trim();
 			parts = ligne.split("\\s+");
 			
-			int numero = Integer.parseInt(parts[0]);
-			int x = Integer.parseInt(parts[1]);
-			int y = Integer.parseInt(parts[2]);
+			int numero  = Integer.parseInt(parts[0]);
+			int x       = Integer.parseInt(parts[1]);
+			int y      = Integer.parseInt(parts[2]);
 			int demande = Integer.parseInt(parts[3]);
 			
 			clients.add(new Client(numero, demande, x, y));
 		}
-		
-		// System.out.println("✓ Données chargées : " + nbClients + " clients");
-		// System.out.println("  Capacité véhicule : " + capaciteVehicule);
-		// System.out.println("  Meilleure solution connue : " + meilleureSolutionConnue);
 		
 		// Calculer et initialiser la matrice de distances euclidiennes
 		calculerMatriceDistances();
@@ -242,12 +246,11 @@ public class ChargeurDonnees
 		
 		// Initialiser la matrice statique dans Client
 		Client.setMatriceDistances(matrice);
-		// System.out.println("  Matrice de distances calculée (" + n + "x" + n + ")");
 	}
 	
-	public int getNbClients() { return nbClients; }
-	public double getMeilleureSolutionConnue() { return meilleureSolutionConnue; }
-	public int getCapaciteVehicule() { return capaciteVehicule; }
-	public Client getDepot() { return depot; }
-	public List<Client> getClients() { return new ArrayList<>(clients); }
+	public int          getNbClients()               { return nbClients; }
+	public double       getMeilleureSolutionConnue() { return meilleureSolutionConnue; }
+	public int          getCapaciteVehicule()        { return capaciteVehicule; }
+	public Client       getDepot()                   { return depot; }
+	public List<Client> getClients()                 { return new ArrayList<>(clients); }
 }

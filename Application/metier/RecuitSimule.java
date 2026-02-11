@@ -4,6 +4,8 @@ import java.util.*;
 
 /**
  * Implémentation de l'algorithme de recuit simulé pour le VRP
+ * 
+ * @author Equipe 4
  */
 public class RecuitSimule
 {
@@ -43,6 +45,12 @@ public class RecuitSimule
 	
 	/**
 	 * Constructeur avec paramètres personnalisés
+	 * 
+	 * @param T0 Température initiale
+	 * @param seuilArret Température de seuil d'arrêt
+	 * @param alpha Coefficient de refroidissement (0 < alpha < 1)
+	 * @param iterationsParTemp Nombre d'itérations par température
+	 * @param maxSansAmelioration Nombre maximum d'itérations sans amélioration avant arrêt
 	 */
 	public RecuitSimule(double T0, double seuilArret, double alpha, int iterationsParTemp, int maxSansAmelioration)
 	{
@@ -63,6 +71,9 @@ public class RecuitSimule
 	
 	/**
 	 * Exécute l'algorithme de recuit simulé
+	 * 
+	 * @param solutionInitiale La solution de départ (généralement obtenue par une heuristique constructive)
+	 * @return La meilleure solution trouvée après optimisation
 	 */
 	public Solution resoudre(Solution solutionInitiale)
 	{
@@ -148,6 +159,9 @@ public class RecuitSimule
 	
 	/**
 	 * Copie une solution
+	 * 
+	 * @param solution La solution à copier
+	 * @return Une nouvelle solution identique mais indépendante
 	 */
 	private Solution copierSolution(Solution solution)
 	{

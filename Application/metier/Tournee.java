@@ -3,6 +3,11 @@ package Application.metier;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Classe représentant une tournée de véhicule dans le VRP
+ * 
+ * @author Equipe 4
+ */
 public class Tournee
 {
 	private List<Client> clients;

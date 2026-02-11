@@ -7,6 +7,8 @@ import java.util.List;
 
 /**
  * Panneau de visualisation graphique des tournées VRP
+ * 
+ * @author Equipe 4
  */
 public class VisualisationTournees extends JPanel
 {

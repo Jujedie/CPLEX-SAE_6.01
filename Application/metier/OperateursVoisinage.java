@@ -4,6 +4,8 @@ import java.util.*;
 
 /**
  * Classe contenant les opérateurs de voisinage pour le recuit simulé
+ * 
+ * @author Equipe 4
  */
 public class OperateursVoisinage
 {
@@ -11,6 +13,9 @@ public class OperateursVoisinage
 	
 	/**
 	 * Génère une solution voisine en appliquant un opérateur aléatoire
+	 * 
+	 * @param solution La solution de départ
+	 * @return Une nouvelle solution voisine
 	 */
 	public static Solution genererVoisin(Solution solution)
 	{
@@ -26,6 +31,9 @@ public class OperateursVoisinage
 	
 	/**
 	 * Opérateur SWAP : échange deux clients dans la même tournée
+	 * 
+	 * @param solution La solution de départ
+	 * @return Une nouvelle solution voisine
 	 */
 	private static Solution swap2Clients(Solution solution)
 	{
@@ -58,13 +66,14 @@ public class OperateursVoisinage
 		clients.set(i, clients.get(j));
 		clients.set(j, temp);
 		
-		// Pas besoin de updateCharge() car on ne change pas la charge
-		
 		return copie;
 	}
 	
 	/**
 	 * Opérateur RELOCATE : déplace un client d'une tournée à une autre
+	 * 
+	 * @param solution La solution de départ
+	 * @return Une nouvelle solution voisine
 	 */
 	private static Solution relocate(Solution solution)
 	{
@@ -146,6 +155,9 @@ public class OperateursVoisinage
 	
 	/**
 	 * Opérateur EXCHANGE : échange deux clients entre deux tournées
+	 * 
+	 * @param solution La solution de départ
+	 * @return Une nouvelle solution voisine
 	 */
 	private static Solution exchange(Solution solution)
 	{
@@ -162,10 +174,6 @@ public class OperateursVoisinage
 		int tailleVoisinage = 2 * n;
 		
 		Client depot = solution.getDepot(); // On récupère le vrai dépôt pour les calculs de distance
-		// Note : Idéalement on récupérerait le vrai dépôt, mais pour une delta-distance, 
-		// si le dépôt n'est pas déplacé, on peut utiliser une référence locale ou l'ignorer pour l'échange de charge.
-		// MAIS pour "Best Solution", on doit comparer des coûts donc des distances.
-        // On va utiliser le calcul de Solution global pour éviter les erreurs.
 
 		// Meilleur mouvement trouvé
 		int bestIdx1 = -1, bestIdx2 = -1;
@@ -251,6 +259,9 @@ public class OperateursVoisinage
 	
 	/**
 	 * Opérateur 2-OPT : inverse un segment dans une tournée
+	 * 
+	 * @param solution La solution de départ
+	 * @return Une nouvelle solution voisine
 	 */
 	private static Solution twoOpt(Solution solution)
 	{
@@ -284,6 +295,9 @@ public class OperateursVoisinage
 	
 	/**
 	 * Opérateur REVERSE : inverse l'ordre des clients dans une tournée
+	 * 
+	 * @param solution La solution de départ
+	 * @return Une nouvelle solution voisine
 	 */
 	private static Solution reverse(Solution solution)
 	{
@@ -303,6 +317,9 @@ public class OperateursVoisinage
 	
 	/**
 	 * Copie profonde d'une solution
+	 * 
+	 * @param solution La solution à copier
+	 * @return Une nouvelle solution identique mais indépendante
 	 */
 	private static Solution copierSolution(Solution solution)
 	{
