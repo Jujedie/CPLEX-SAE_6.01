@@ -2,9 +2,8 @@ package Application.controlleur;
 
 import Application.metier.*;
 import Application.vue.InterfaceRecuitSimule;
-
-import javax.swing.SwingUtilities;
 import java.io.IOException;
+import javax.swing.SwingUtilities;
 
 /**
  * Contrôleur pour l'algorithme de recuit simulé
@@ -109,8 +108,8 @@ public class ControlleurRecuitSimule
 						
 						if (iter % 1000 == 0)
 						{
-							vue.logMessage(String.format("[%6d] T=%.4f | Meilleure: %.2f", 
-								iter, temp, meilleure.calculerCoutTotal()));
+							vue.logMessage(String.format("[%6d] T=%.4f | Courante: %.2f | Meilleure: %.2f", 
+								iter, temp, courante.calculerCoutTotal(), meilleure.calculerCoutTotal()));
 						}
 					}
 				});

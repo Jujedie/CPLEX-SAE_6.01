@@ -1,9 +1,9 @@
 package Application.vue;
 
 import Application.metier.*;
-import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import javax.swing.*;
 
 /**
  * Panneau de visualisation graphique des tournées VRP
@@ -223,7 +223,7 @@ public class VisualisationTournees extends JPanel
 		g2.setColor(Color.BLACK);
 		
 		int x = 10;
-		int y = 20;
+		int y = 30;
 		int lineHeight = 20;
 		
 		g2.drawString("Distance totale : " + String.format("%.2f", solution.calculerCoutTotal()), x, y);
