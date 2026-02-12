@@ -3,7 +3,6 @@ package Application.vue;
 import Application.controlleur.ControlleurRecuitSimule;
 import Application.metier.*;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -168,7 +167,7 @@ public class InterfaceRecuitSimule extends JFrame
 		
 		// Itérations par température
 		panel.add(new JLabel("Itérations par température :"));
-		spinIterParTemp = new JSpinner(new SpinnerNumberModel(5000, 10, 50000, 100));
+		spinIterParTemp = new JSpinner(new SpinnerNumberModel(300, 10, 50000, 100));
 		panel.add(spinIterParTemp);
 		
 		// Max sans amélioration
@@ -249,7 +248,7 @@ public class InterfaceRecuitSimule extends JFrame
 	{
 		FileDialog fileDialog = new FileDialog(this, "Sélectionner le fichier source", FileDialog.LOAD);
 		fileDialog.setDirectory(System.getProperty("user.dir"));
-		fileDialog.setFilenameFilter((dir, name) -> name.toLowerCase().endsWith(".txt"));
+		fileDialog.setFilenameFilter((dir, name) -> name.toLowerCase().endsWith(".txt") || name.toLowerCase().endsWith(".dat"));
 		fileDialog.setVisible(true);
 		
 		String directory = fileDialog.getDirectory();
