@@ -127,8 +127,7 @@ public class OperateursVoisinage
 			Client client = source.getClients().get(clientIdx);
 			
 			// Vérifier si la destination peut accueillir ce client
-			// if (destination.peutAjouter(client)) -> RELACHEMENT DE LA CONTRAINTE
-			if (true)
+			if (destination.peutAjouter(client))
 			{
 				source.getClients().remove(clientIdx);
 				source.updateCharge();
